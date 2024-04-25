@@ -4,6 +4,14 @@ from retriever import get_response, get_retriever
 st.set_page_config(page_title="Adina Cosmetic Ingredients", page_icon="")
 st.title("Adina Cosmetic Ingredients")
 
+def get_folder_size(folder_path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    return total_size / (1024 * 1024) 
+
 # last uploaded files
 if "last_uploaded_files" not in st.session_state:
     st.session_state.last_uploaded_files = []
@@ -50,3 +58,7 @@ uploaded_files = st.sidebar.file_uploader(
 to_be_vectorised_files = [item for item in uploaded_files if item.name not in st.session_state.last_uploaded_files]
 retriever = get_retriever(to_be_vectorised_files)
 st.session_state.last_uploaded_files.extend([item.name for item in to_be_vectorised_files])
+
+# Display Vector Store Size
+with st.sidebar:
+    st.write(f"Vector Store Size: {get_folder_size('Adina_Vector_Database'):.2f} MB")
