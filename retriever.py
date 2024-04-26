@@ -45,7 +45,7 @@ def load_and_split(uploaded_files):
     if not os.path.exists(temp_pdf_folder):
         os.makedirs(temp_pdf_folder)
 
-    docs = []
+    all_docs = []
     for file in uploaded_files:
         local_filepath = os.path.join(temp_pdf_folder, file.name)
         with open(local_filepath, "wb") as f:
@@ -57,16 +57,16 @@ def load_and_split(uploaded_files):
             print(f"\nFailed to upload {file.name}.")
 
         loader = PyPDFLoader(local_filepath)
-        docs = loader.load()
+        text = loader.load()
 
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size = 1000,
             chunk_overlap=200
         )
-        temp_docs = text_splitter.split_documents(docs)
-        docs.extend(temp_docs)
+        temp_docs = text_splitter.split_documents(text)
+        all_docs.extend(temp_docs)
     delete_temp_files()
-    return docs
+    return all_docs
 
 def get_retriever(uploaded_files):
     if os.path.exists(f"{vector_database_name}") == False:
