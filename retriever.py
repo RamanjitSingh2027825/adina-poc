@@ -1,4 +1,4 @@
-from langchain_community.document_loaders.pdf import PyPDFLoader
+from langchain_community.document_loaders.text import TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_openai.embeddings.azure import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -9,9 +9,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 import os
 import shutil
+from ocr_module import ocr
 from s3bucket import upload_to_s3
 load_dotenv()
 
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 vector_database_name = "Adina_Vector_Database"
 temp_pdf_folder = "temp-pdf-files"
 
@@ -56,7 +58,8 @@ def load_and_split(uploaded_files):
         else:
             print(f"\nFailed to upload {file.name}.")
 
-        loader = PyPDFLoader(local_filepath)
+        # loader = PyPDFLoader(local_filepath)
+        loader = TextLoader(ocr(local_pdf_path=local_filepath))
         text = loader.load()
 
         text_splitter = RecursiveCharacterTextSplitter(
